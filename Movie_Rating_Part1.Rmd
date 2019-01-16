@@ -1,0 +1,149 @@
+---
+title: "Movie Rating"
+author: Peiyun Zhou
+output: pdf_document
+---
+
+This R Markdown document demonstrates how to preprocess the movies dataset and 
+explore different questions about relationships between Audience/Critics ratings and Budget, Genre, and Year. 
+
+First, we load the dataset "movie_rating.csv", rename the variables, 
+and set Year as a factor variable. 
+
+```{r echo=TRUE}
+movies<-read.csv("Movie-Ratings.csv")
+head(movies) # Explore the dataset
+colnames(movies)<-c("Film","Genre","CriticRating","AudienceRating","BudgetMillions","Year") # rename the columns
+head(movies) # Recheck the dataset
+# tail(movies)
+str(movies) # check the structure of the variables in the dataset
+movies$Year<-as.factor(movies$Year) # Set year as a factor variable
+```
+
+
+Load the library for visualization
+Use aec() to map the data to what you want to see
+Right now we will not see any informaiton about the data
+
+```{r, echo=TRUE}
+library(ggplot2)
+ggplot(data=movies,aes(x=CriticRating,y=AudienceRating))
+
+```
+
+
+We need to add the geometry layer
+
+```{r, echo=TRUE}
+ggplot(data=movies,aes(x=CriticRating,y=AudienceRating))+
+    geom_point()
+```
+
+We can assign more parameters to the geometry, such as color, size
+
+```{r, echo=TRUE}
+
+# Color based on Genre
+ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,
+                       color=Genre)) +
+  geom_point()
+# Size and Color based on Genre
+ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,
+                       color=Genre,size=Genre)) +
+  geom_point()
+
+# Color based on Genre; Size based on Budget
+ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,
+                       color=Genre,size=BudgetMillions)) +
+  geom_point()
+```
+
+We can add  Geom layer, such as points and lines, or multiple layers
+Yet, when we add points and lines, the plot is not very informative
+We should override Aesletics to make the plot more informative
+
+```{r, echo=TRUE}
+
+
+p<-ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,
+                       color=Genre,size=BudgetMillions)) +
+  geom_point()
+
+# Add Geom layer--Points
+p+geom_point()
+
+# Add Geom layer--Lines
+p+geom_line()
+
+#Add multiple Geom layers
+p+geom_line()+geom_point()
+```
+
+```{r, echo=TRUE}
+# Overriding Aesletics Example 1, override Size
+p+geom_point(aes(size=CriticRating))
+
+# Overriding Aesletics Example 2, override Color
+# p+geom_point(aes(color=BudgetMillions))
+
+# Overriding Aesletics Example 3, override X
+p+geom_point(aes(x=BudgetMillions))+
+  xlab("Budget Millions $$$")
+# Overriding Aesletics Example 4, reduce line size
+p+geom_line(size=1) + geom_point()
+
+```
+
+There are differences between mapping and setting
+When you want to set a color, you do NOT use aes
+When you want to map a color to a variable, you use aes
+
+```{r,echo=TRUE}
+#1. Mapping
+p+geom_point(aes(size=BudgetMillions))
+#2. Setting
+p+geom_point(size=10)
+```
+
+We can also create histographs to visualize the Audience's or Cristic's rating based on different predictors (e.g. Genre)
+
+```{r,echo=TRUE}
+
+s<-ggplot(data=movies,aes(x=BudgetMillions))
+s+geom_histogram(binwidth=10)
+# Add color for each genre
+s+geom_histogram(binwidth=10,aes(fill=Genre))
+# Add a black boarder line
+s+geom_histogram(binwidth=10,aes(fill=Genre),color="Black")
+```
+
+We can also create density charts to explore the data
+We found that Audiences' ratings showed a normal distribution while
+the Critics' ratings exhibited an uniform distribution 
+
+
+```{r,echo=TRUE}
+
+s<-ggplot(data=movies,aes(x=BudgetMillions))
+s+geom_density(aes(fill=Genre))
+s+geom_density(aes(fill=Genre),position="stack")
+
+# Starting Layers Tips 
+t<- ggplot(data=movies,aes(x=AudienceRating))
+t+geom_histogram(binwidth = 10,fill="White",color="Blue")
+
+# Another way to make the same plot
+t<- ggplot(data=movies)
+# Distribution of the Audience Rating; The trend is normal distribution 
+t+geom_histogram(binwidth = 10,
+                 aes(x=AudienceRating),
+                     fill="White",color="Blue")
+
+# Distribution of the Critics Rating; The trend is an uniform distribution
+t+geom_histogram(binwidth = 10,
+                 aes(x=CriticRating),
+                 fill="White",color="Blue")
+```
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
