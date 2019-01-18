@@ -1,0 +1,138 @@
+---
+title: "Movie Rating Part2 Rcodes"
+author: Peiyun Zhou
+output: pdf_document
+---
+
+I will further demonstrates how to create boxplot, adjust the scale of the plots, and 
+label the plots in this R Markdown document. These data visualization will help us to inspect the relationships between Audiences'/Critics' move ratings and budget, genre, year, ect. 
+
+First, load the dataset and rename the columns
+```{r echo=TRUE}
+movies<-read.csv("Movie-Ratings.csv")
+colnames(movies)<-c("Film","Genre","CriticRating","AudienceRating","BudgetMillions","Year") # rename the columns
+movies$Year<-as.factor(movies$Year) # Set year as a factor variable
+```
+
+Load the library for visualization
+
+```{r, echo=TRUE}
+library(ggplot2)
+```
+
+
+We can see how the audience rating changes based on the change of the critics rating
+using the smooth function in the ggplot
+
+```{r, echo=TRUE}
+u<-ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,color=Genre))
+u+geom_point()+geom_smooth(fill=NA)
+
+```
+
+We can further explore how Audiences' ratings differ based on different genre 
+through building boxplots
+
+```{r, echo=TRUE}
+u<-ggplot(data=movies,aes(x=Genre,y=AudienceRating,color=Genre))
+u+geom_boxplot()
+u+geom_boxplot(size=1.2) # Change the size of the boxplot
+u+geom_boxplot(size=1.2)+geom_jitter() # Include the dots
+```
+
+Another way to create boxplot for Audience Rating with manipulation of the transparency of the data points
+
+```{r,echo=TRUE}
+u+geom_jitter()+geom_boxplot(size=1.2,alpha=0.5)
+```
+
+We can also explore how Cristics' ratings change depend on the genre.
+
+
+```{r,echo=TRUE}
+b<-ggplot(data=movies,aes(x=Genre,y=CriticRating,color=Genre))
+b+geom_boxplot(size=1.2)+geom_jitter()
+# Another way to create boxplot for Critics Rating:
+b+geom_jitter()+geom_boxplot(size=1.2,alpha=0.5)
+```
+
+We can use facet in the ggplot to seperate the histographs for movie budget based 
+on the movie genres
+
+```{r,echo=TRUE}
+# Facets
+v<-ggplot(data=movies,aes(x=BudgetMillions))
+v+geom_histogram(binwidth=10,aes(fill=Genre),color="Black")
+
+v+geom_histogram(binwidth=10,aes(fill=Genre),
+                 color="Black")+
+  facet_grid(Genre~.,scale="free")
+```
+
+
+Scatterplot can also be used to visualize the relationships between audiences' ratings and critics ratings based on genre
+
+```{r,echo=TRUE}
+w<-ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,color=Genre))
+w+geom_point(size=3)
+w+geom_point(size=3)+
+  facet_grid(Genre~.)
+```
+
+The relationships between audiences' ratings and critics ratings based on Year
+
+```{r,echo=TRUE}
+w+geom_point(size=3)+
+  facet_grid(Year~.)
+```
+
+
+The relationships between audiences' ratings and critics ratings based on Year and Genre
+
+
+```{r,echo=TRUE}
+w+geom_point(size=3)+
+  facet_grid(Genre~Year)
+```
+
+
+We can further adjust the scale of the plots
+
+```{r,echo=TRUE}
+m<-ggplot(data=movies,aes(x=CriticRating,y=AudienceRating,
+                          size=BudgetMillions,
+                          color=Genre))
+m+geom_point()
+
+m+geom_point()+
+  xlim(50,100) # Zoom in and Remove rows that are outside the boundaries
+
+m+geom_point()+
+  xlim(50,100) +
+  ylim(50,100) # Further Zoom in and remove columns that are outside the boundaries
+
+```
+
+
+The incorrect way to zoom in data will lead to trimmed data
+
+```{r, echo=TRUE}
+# This does not always work
+n<-ggplot(data=movies,aes(x=BudgetMillions))
+n+geom_histogram(binwidth = 10,aes(fill=Genre),color="Black")
+
+n+geom_histogram(binwidth = 10,aes(fill=Genre),color="Black")+
+  ylim(0,50) # This would trim the data, rather than zoom in 
+
+```
+
+The correct way to create zoom-in plot
+Use coord_cartesian( )
+
+```{r, echo=TRUE}
+n+geom_histogram(binwidth = 10,aes(fill=Genre),color="Black")+
+  coord_cartesian(ylim=c(0,50))  # Zoom in into the chart 
+```
+
+
+
